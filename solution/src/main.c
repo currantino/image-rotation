@@ -6,7 +6,6 @@
 #include "image_reader.h"
 #include "image_writer.h"
 #include "io.h"
-#include "util.h"
 
 void usage()
 {
