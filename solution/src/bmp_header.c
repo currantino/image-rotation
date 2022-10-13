@@ -1,20 +1,22 @@
 #include "bmp_header.h"
 
-static bool read_header( FILE* f, struct bmp_header* header) {
-	return fread( header, sizeof( struct bmp_header ), 1 , f );
+static bool read_header(FILE *f, struct bmp_header *header)
+{
+	return fread(header, sizeof(struct bmp_header), 1, f);
 }
 
-bool read_header_from_file( const char* filename, struct bmp_header* header) {
-	if (!filename) return false;
-	FILE* f = fopen(filename, "rb");
-	if (!f) return false;
-	bool is_read_successfully = read_header( f, header );
-	if (is_read_successfully) {
-		fclose(f);
-		printf( "width is %u, height is %u\n", header -> biWidth, header -> biHeight );
-		return true;
-	} else {
+bool read_header_from_file(FILE *f, struct bmp_header *header)
+{
+	if (!f)
 		return false;
-	}
+	bool is_read_successfully = read_header(f, header);
+	return is_read_successfully;
 }
 
+bool write_header_to_file(FILE *f, struct bmp_header *header)
+{
+	if (!f)
+		return false;
+	fwrite(header, sizeof(struct bmp_header), 1, f);
+	return true;
+}
