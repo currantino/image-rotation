@@ -1,11 +1,15 @@
 #include "pixel.h"
 
-struct pixel pixel_create(uint8_t blue, uint8_t green, uint8_t red) {
-	return (struct pixel) {{blue, green, red}};
+struct pixel pixel_create(uint8_t blue, uint8_t green, uint8_t red)
+{
+	return (struct pixel){{blue, green, red}};
 }
 
-struct pixel pixel_read(FILE *f) {
-	if (!f) {return (struct pixel) {0};}
+struct pixel pixel_read(FILE *f)
+{
+	if (!f) {
+		return (struct pixel){0};
+	}
 	uint8_t blue;
 	uint8_t green;
 	uint8_t red;
