@@ -9,16 +9,6 @@ static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 	return values_read == 1 ? READ_OK : READ_INVALID_HEADER;
 }
 
-void print_data(size_t height, size_t width, struct pixel *data)
-{
-	for (size_t row = 0; row < height; row++) {
-		for (size_t col = 0; col < width; col++) {
-			pixel_print(data[row * width + col]);
-		}
-		printf("\n");
-	}
-}
-
 enum read_status from_bmp(FILE *in, struct image *img)
 {
 	if (!in) {
@@ -39,7 +29,7 @@ enum read_status from_bmp(FILE *in, struct image *img)
 
 	fseek(in, header->bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
-		fread(data + row * width, sizeof(struct pixel), width, in);
+		fread(data + (height - row - 1) * width, sizeof(struct pixel), width, in);
 		fseek(in, padding_in_bytes, SEEK_CUR);
 	}
 	free(header);
@@ -95,7 +85,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	uint8_t junk = 255;
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
-		pixels_written += fwrite(data + row * width,
+		pixels_written += fwrite(data + (height - row - 1) * width,
 					 sizeof(struct pixel), width, out);
 		fwrite(&junk, sizeof(uint8_t), padding_in_bytes, out);
 	}
