@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 	FILE *in = fopen(argv[1], "rb");
 	from_bmp(in, img);
 	fclose(in);
-	
+
 	printf("\nROTATING\n");
 	*rotated = image_rotate(*img);
 	*rotated = image_rotate(*rotated);
