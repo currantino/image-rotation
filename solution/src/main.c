@@ -39,8 +39,6 @@ int main(int argc, char **argv)
 
 	printf("\nROTATING\n");
 	*rotated = image_rotate(*img);
-	*rotated = image_rotate(*rotated);
-	*rotated = image_rotate(*rotated);
 	image_destroy(img);
 
 	printf("\nWRITING\n");
