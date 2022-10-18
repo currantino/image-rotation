@@ -1,7 +1,10 @@
 #include "image.h"
-#define BYTES_PER_PIXEL 3
 
-struct image image_create(struct dimensions size)
+#ifndef BYTES_PER_PIXEL
+#define BYTES_PER_PIXEL 3
+#endif
+
+struct image image_create(const struct dimensions size)
 {
 	struct pixel *data = malloc(sizeof(struct pixel) * size.x * size.y);
 	struct image created_image = {.size = size, .data = data};

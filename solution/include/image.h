@@ -11,7 +11,7 @@ struct image {
 	struct pixel *data;
 };
 
-struct image image_create(struct dimensions size);
+struct image image_create(const struct dimensions size);
 size_t image_get_padding_in_bytes(const struct image *image);
 void image_destroy(struct image *image);
 size_t image_get_width(const struct image *img);

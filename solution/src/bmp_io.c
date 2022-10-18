@@ -1,7 +1,16 @@
 #include "bmp_io.h"
+
+#ifndef BF_TYPE
 #define BF_TYPE 19778
+#endif
+
+#ifndef BYTES_PER_PIXEL
 #define BYTES_PER_PIXEL 3
+#endif
+
+#ifndef BITS_PER_BYTE
 #define BITS_PER_BYTE 8
+#endif
 
 static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 {
@@ -15,7 +24,7 @@ enum read_status from_bmp(FILE *in, struct image *img)
 		return READ_ERROR;
 	}
 
-	struct bmp_header* header = malloc(sizeof(struct bmp_header));
+	struct bmp_header *header = malloc(sizeof(struct bmp_header));
 	bmp_header_read(in, header);
 
 	size_t width = header->biWidth;
@@ -29,7 +38,8 @@ enum read_status from_bmp(FILE *in, struct image *img)
 
 	fseek(in, header->bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
-		fread(data + (height - row - 1) * width, sizeof(struct pixel), width, in);
+		fread(data + (height - row - 1) * width, sizeof(struct pixel),
+		      width, in);
 		fseek(in, padding_in_bytes, SEEK_CUR);
 	}
 	free(header);
@@ -73,7 +83,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	if (!out) {
 		return WRITE_ERROR;
 	}
-	struct bmp_header* header = malloc(sizeof(struct bmp_header));
+	struct bmp_header *header = malloc(sizeof(struct bmp_header));
 	*header = image_generate_header(img);
 	write_bmp_header(out, header);
 	free(header);
