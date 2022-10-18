@@ -92,12 +92,11 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	struct pixel *data = img->data;
 	size_t padding_in_bytes = image_get_padding_in_bytes(img);
 
-	uint8_t junk = 255;
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
 		pixels_written += fwrite(data + (height - row - 1) * width,
 					 sizeof(struct pixel), width, out);
-		fwrite(&junk, sizeof(uint8_t), padding_in_bytes, out);
+		fseek(out, padding_in_bytes, SEEK_CUR);
 	}
 	if (pixels_written != width * height) {
 		return WRITE_ERROR;
