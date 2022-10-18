@@ -3,7 +3,9 @@
 
 #include "bmp.h"
 #include "bmp_header.h"
+#include "bmp_io.h"
 #include "image_reader.h"
+#include "image_rotator.h"
 #include "image_writer.h"
 #include "io.h"
 
@@ -14,11 +16,6 @@ void usage()
 	    "Usage: ./build/image-transformer BMP_FILE_NAME BMP_FILENAME\n");
 }
 
-void pixel_print(struct pixel pixel)
-{
-	printf("pixel: b=%u, g=%u, r=%u\n", pixel.components[0],
-	       pixel.components[1], pixel.components[2]);
-}
 int main(int argc, char **argv)
 {
 	(void)argc;
@@ -30,18 +27,20 @@ int main(int argc, char **argv)
 			perror("Too many arguments \n");
 		exit(1);
 	}
-	struct bmp_header *header = malloc(sizeof(struct bmp_header));
-	FILE *f = fopen(argv[1], "rb");
-	read_header_from_file(f, header);
-	struct image *image = malloc(sizeof(struct image));
-	struct dimensions size = {header->biWidth, header->biHeight};
-	*image = image_create(size);
-	read_image(f, image);
-	FILE *output = fopen(argv[2], "wb");
-	write_header_to_file(f, header);
-	bool is_copied = image_write(output, image);
-	if (is_copied)
-		printf("well done!\n");
-	image_destroy(image);
+
+	struct image *img = malloc(sizeof(struct image));
+
+	printf("\nREADING\n");
+
+	FILE *in = fopen(argv[1], "rb");
+	from_bmp(in, img);
+	fclose(in);
+
+	printf("\nWRITING\n");
+
+	FILE *out = fopen(argv[2], "wb");
+	to_bmp(out, img);
+	fclose(out);
+	image_destroy(img);
 	return 0;
 }

@@ -18,3 +18,9 @@ struct pixel pixel_read(FILE *f)
 	fread(&red, sizeof(uint8_t), 1, f);
 	return pixel_create(blue, green, red);
 }
+
+void pixel_print(struct pixel pixel)
+{
+	printf("b=%3u,g=%3u,r=%3u\t|", pixel.components[0], pixel.components[1],
+	       pixel.components[2]);
+}
