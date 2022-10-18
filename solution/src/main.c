@@ -29,18 +29,25 @@ int main(int argc, char **argv)
 	}
 
 	struct image *img = malloc(sizeof(struct image));
+	struct image *rotated = malloc(sizeof(struct image));
 
 	printf("\nREADING\n");
 
 	FILE *in = fopen(argv[1], "rb");
 	from_bmp(in, img);
 	fclose(in);
+	
+	printf("\nROTATING\n");
+	*rotated = image_rotate(*img);
+	*rotated = image_rotate(*rotated);
+	*rotated = image_rotate(*rotated);
+	image_destroy(img);
 
 	printf("\nWRITING\n");
 
 	FILE *out = fopen(argv[2], "wb");
-	to_bmp(out, img);
+	to_bmp(out, rotated);
 	fclose(out);
-	image_destroy(img);
+	image_destroy(rotated);
 	return 0;
 }
