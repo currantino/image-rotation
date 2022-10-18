@@ -28,3 +28,15 @@ size_t image_get_size(const struct image *img)
 {
 	return image_get_width(img) * image_get_height(img);
 }
+
+struct pixel* image_get_row(const struct image *img, size_t row)
+{
+	if (row >= image_get_height(img)) {return NULL;}
+	return (img -> data) + row * image_get_width(img);
+}
+
+struct pixel* image_get_column(const struct image *img, size_t column)
+{
+	if (column >= image_get_width(img)) { return NULL;}
+	return (img -> data) + column;
+}
