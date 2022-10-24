@@ -39,9 +39,6 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	*img = image_create(dim);
 	struct pixel *data = img->data;
 	size_t padding_in_bytes = image_get_padding_in_bytes(img);
-	printf("\nheight=%zupx, width=%zupx, padding=%zubytes\n\n", height,
-	       width, padding_in_bytes);
-
 	fseek(in, header->bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
 		fread(data + (height - row - 1) * width, sizeof(struct pixel),
