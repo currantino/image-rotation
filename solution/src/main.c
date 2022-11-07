@@ -32,10 +32,14 @@ int main(int argc, char **argv)
 	}
 	case READ_ERROR: {
 		err("file could not be read", RED);
+		fclose(in);
+		image_destroy(img);
 		return 1;
 	}
 	case READ_INVALID_HEADER: {
 		err("header of the file could not be read", RED);
+		fclose(in);
+		image_destroy(img);
 		return 2;
 	}
 	}
@@ -54,6 +58,8 @@ int main(int argc, char **argv)
 	}
 	case WRITE_ERROR: {
 		err("file could not be written", RED);
+		fclose(out);
+		image_destroy(rotated);
 		return 1;
 	}
 	}
