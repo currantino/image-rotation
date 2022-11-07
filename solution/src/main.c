@@ -5,7 +5,7 @@
 #include "image_rotator.h"
 #include "util.h"
 
-void usage()
+void usage(void)
 {
 	fprintf(
 	    stderr,
