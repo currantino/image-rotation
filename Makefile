@@ -163,7 +163,8 @@ $(foreach sanitizer,none asan lsan msan usan,$(eval $(call make-sanitizer-rule,$
 else
 
 all: build-main
-
+	clang-format -style=file:style.clang-format -i solution/src/*
+	clang-format -style=file:style.clang-format -i solution/include/*
 check:
 	$(CLANG_TIDY) $(CLANG_TIDY_ARGS) $(SOURCES.main)
 
