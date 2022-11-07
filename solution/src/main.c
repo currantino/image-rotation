@@ -14,8 +14,6 @@ void usage(void)
 
 int main(int argc, char **argv)
 {
-	(void)argc;
-	(void)argv; // supress 'unused parameters' warning
 	if (argc != 3) {
 		if (argc < 3)
 			perror("Not enough arguments \n");
@@ -25,7 +23,6 @@ int main(int argc, char **argv)
 	}
 
 	struct image *img = malloc(sizeof(struct image));
-	struct image *rotated = malloc(sizeof(struct image));
 
 	FILE *in = fopen(argv[1], "rb");
 	switch (from_bmp(in, img)) {
@@ -45,6 +42,7 @@ int main(int argc, char **argv)
 
 	fclose(in);
 
+	struct image *rotated = malloc(sizeof(struct image));
 	*rotated = image_rotate(*img);
 	image_destroy(img);
 

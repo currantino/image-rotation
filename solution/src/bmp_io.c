@@ -25,7 +25,12 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	}
 
 	struct bmp_header *header = malloc(sizeof(struct bmp_header));
-	bmp_header_read(in, header);
+
+	enum read_status header_read_status = bmp_header_read(in, header);
+
+	if(header_read_status != READ_OK) {
+		return header_read_status;
+	}	
 
 	size_t width = header->biWidth;
 	size_t height = header->biHeight;
