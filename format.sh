@@ -1,4 +1,4 @@
 #!/bin/bash --
-clang-format -style=file:style.clang-format -i solution/src/*
-clang-format -style=file:style.clang-format -i solution/include/*
+clang-format -style=file -i solution/src/*
+clang-format -style=file -i solution/include/*
 

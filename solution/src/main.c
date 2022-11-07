@@ -33,15 +33,10 @@ int main(int argc, char **argv)
 		log_ok(image_read_error_msg[read_status]);
 		break;
 	}
-	case READ_ERROR: {
+	default: {
 		log_err(image_read_error_msg[read_status]);
 		image_destroy(img);
 		return 1;
-	}
-	case READ_INVALID_HEADER: {
-		log_err(image_read_error_msg[read_status]);
-		image_destroy(img);
-		return 2;
 	}
 	}
 
@@ -59,7 +54,7 @@ int main(int argc, char **argv)
 		log_ok(image_write_error_msg[write_status]);
 		break;
 	}
-	case WRITE_ERROR: {
+	default: {
 		log_err(image_write_error_msg[write_status]);
 		return 1;
 	}

@@ -11,6 +11,10 @@ MKDIR = mkdir -p
 # Clang-tidy
 CLANG_TIDY = clang-tidy
 
+#Clang-format
+CLANG_FORMAT = clang-format
+CLANG_FORMAT_STYLE_FILE = .clang-format
+
 _noop =
 _space = $(noop) $(noop)
 _comma = ,
@@ -20,6 +24,8 @@ CLANG_TIDY_CHECKS += $(strip $(file < clang-tidy-checks.txt))
 CLANG_TIDY_ARGS = \
 	-warnings-as-errors=* -header-filter="$(abspath $(INCDIR.main))/.*" \
 	-checks="$(subst $(_space),$(_comma),$(CLANG_TIDY_CHECKS))" \
+	
+CLANG_FORMAT_ARGS += -i -style=file:$(CLANG_FORMAT_STYLE_FILE)
 
 # Sanitizers
 CFLAGS.none :=
@@ -60,6 +66,7 @@ INCDIR.main = $(SOLUTION_DIR)/include
 OBJDIR.main = $(OBJDIR)/$(SOLUTION_DIR)
 
 SOURCES.main += $(wildcard $(SRCDIR.main)/*.c) $(wildcard $(SRCDIR.main)/*/*.c)
+INCLUDES.main += $(wildcard $(INCDIR.main)/*.h) $(wildcard $(INCDIR.main)/*/*.h)
 TARGET.main  := $(BUILDDIR)/$(NAME)
 
 CFLAGS.main += $(strip $(file < $(SOLUTION_DIR)/compile_flags.txt)) $(CFLAGS) -I$(INCDIR.main)
@@ -163,10 +170,11 @@ $(foreach sanitizer,none asan lsan msan usan,$(eval $(call make-sanitizer-rule,$
 else
 
 all: build-main
-	clang-format -style=file:style.clang-format -i solution/src/*
-	clang-format -style=file:style.clang-format -i solution/include/*
-check:
+check: format
 	$(CLANG_TIDY) $(CLANG_TIDY_ARGS) $(SOURCES.main)
+
+format:
+	$(CLANG_FORMAT) $(CLANG_FORMAT_ARGS) $(SOURCES.main) $(INCLUDES.main)
 
 $(foreach target,main tester,$(eval $(call make-compilation-rule,$(target))))
 $(foreach test,$(sort $(wildcard $(TESTER_DIR)/tests/*)),$(eval $(call make-test-rule,$(test))))
