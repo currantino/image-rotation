@@ -87,7 +87,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	size_t width = image_get_width(img);
 	size_t height = image_get_height(img);
 	struct pixel *data = img->data;
-	size_t padding_in_bytes = image_get_padding_in_bytes(img);
+	long padding_in_bytes = image_get_padding_in_bytes(img);
 
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {

@@ -6,8 +6,8 @@
 
 long image_get_padding_in_bytes(const struct image *image)
 {
-         size_t width_in_bytes = (image->size.x) * BYTES_PER_PIXEL;
-         return width_in_bytes % 4 == 0 ? 0 : 4 - width_in_bytes % 4;
+	long width_in_bytes = (long)(image->size.x) * BYTES_PER_PIXEL;
+	return width_in_bytes % 4 == 0 ? 0 : 4 - width_in_bytes % 4;
 }
 struct image image_create(const struct dimensions size)
 {
