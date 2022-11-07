@@ -2,20 +2,14 @@
 
 #include "util.h"
 
-void err(char *message, enum color color)
+void log_ok(const char *const message)
 {
-	switch (color) {
-	case RED: {
-		fprintf(stderr, "\x1B[31m");
-		fprintf(stderr, "[ ERROR ]");
-		break;
-	}
-	case GREEN: {
-		fprintf(stderr, "\x1B[32m");
-		fprintf(stderr, "[ OK ]");
-		break;
-	}
-	}
-	fprintf(stderr, "\x1B[0m");
-	fprintf(stderr, "%s\n", message);
+	fprintf(stderr, "%s%s%s%s\n", color_codes[GREEN], "[ OK ]\t",
+		color_codes[DEFAULT], message);
+}
+
+void log_err(const char *const message)
+{
+	fprintf(stderr, "%s%s%s%s\n", color_codes[RED], "[ ERROR ]\t",
+		color_codes[DEFAULT], message);
 }

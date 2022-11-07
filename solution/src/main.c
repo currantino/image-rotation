@@ -25,45 +25,44 @@ int main(int argc, char **argv)
 	struct image *img = malloc(sizeof(struct image));
 
 	FILE *in = fopen(argv[1], "rb");
-	switch (from_bmp(in, img)) {
+	enum read_status read_status = from_bmp(in, img);
+	fclose(in);
+
+	switch (read_status) {
 	case READ_OK: {
-		err("file read successfully!", GREEN);
+		log_ok(image_read_error_msg[read_status]);
 		break;
 	}
 	case READ_ERROR: {
-		err("file could not be read", RED);
-		fclose(in);
+		log_err(image_read_error_msg[read_status]);
 		image_destroy(img);
 		return 1;
 	}
 	case READ_INVALID_HEADER: {
-		err("header of the file could not be read", RED);
-		fclose(in);
+		log_err(image_read_error_msg[read_status]);
 		image_destroy(img);
 		return 2;
 	}
 	}
-
-	fclose(in);
 
 	struct image *rotated = malloc(sizeof(struct image));
 	*rotated = image_rotate(*img);
 	image_destroy(img);
 
 	FILE *out = fopen(argv[2], "wb");
-	switch (to_bmp(out, rotated)) {
+
+	enum write_status write_status = to_bmp(out, rotated);
+	fclose(out);
+	image_destroy(rotated);
+	switch (write_status) {
 	case WRITE_OK: {
-		err("file written successfully!", GREEN);
+		log_ok(image_write_error_msg[write_status]);
 		break;
 	}
 	case WRITE_ERROR: {
-		err("file could not be written", RED);
-		fclose(out);
-		image_destroy(rotated);
+		log_err(image_write_error_msg[write_status]);
 		return 1;
 	}
 	}
-	fclose(out);
-	image_destroy(rotated);
 	return 0;
 }
