@@ -1,5 +1,5 @@
-#ifndef IMAGE_ROTATOR_H
-#define IMAGE_ROTATOR_H
+#ifndef IMAGE_TRANSFORMATIONS_H
+#define IMAGE_TRANSFORMATIONS_H
 
 #include "image.h"
 

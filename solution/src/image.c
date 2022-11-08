@@ -4,9 +4,9 @@
 #define BYTES_PER_PIXEL 3
 #endif
 
-long image_get_padding_in_bytes(const struct image *image)
+int64_t image_get_padding_in_bytes(const struct image *image)
 {
-	long width_in_bytes = (long)(image->size.x) * BYTES_PER_PIXEL;
+	int64_t width_in_bytes = (int64_t)(image->size.x) * BYTES_PER_PIXEL;
 	return width_in_bytes % 4 == 0 ? 0 : 4 - width_in_bytes % 4;
 }
 struct image image_create(const struct dimensions size)
