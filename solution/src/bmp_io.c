@@ -24,27 +24,26 @@ enum read_status from_bmp(FILE *in, struct image *img)
 		return READ_ERROR;
 	}
 
-	struct bmp_header *header = malloc(sizeof(struct bmp_header));
+	struct bmp_header header = {0};
 
-	enum read_status header_read_status = bmp_header_read(in, header);
+	enum read_status header_read_status = bmp_header_read(in, &header);
 
 	if (header_read_status != READ_OK) {
 		return header_read_status;
 	}
 
-	size_t width = header->biWidth;
-	size_t height = header->biHeight;
+	size_t width = header.biWidth;
+	size_t height = header.biHeight;
 	struct dimensions dim = {.x = width, .y = height};
 	*img = image_create(dim);
 	struct pixel *data = img->data;
 	long padding_in_bytes = image_get_padding_in_bytes(img);
-	fseek(in, header->bOffBits, SEEK_SET);
+	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
 		fread(data + (height - row - 1) * width, sizeof(struct pixel),
 		      width, in);
 		fseek(in, padding_in_bytes, SEEK_CUR);
 	}
-	free(header);
 	return READ_OK;
 }
 
@@ -85,10 +84,9 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	if (!out) {
 		return WRITE_ERROR;
 	}
-	struct bmp_header *header = malloc(sizeof(struct bmp_header));
-	*header = image_generate_header(img);
-	write_bmp_header(out, header);
-	free(header);
+	struct bmp_header header = {0};
+	header = image_generate_header(img);
+	write_bmp_header(out, &header);
 	size_t width = image_get_width(img);
 	size_t height = image_get_height(img);
 	struct pixel *data = img->data;
