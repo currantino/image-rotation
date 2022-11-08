@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "bmp_io.h"
-#include "image_rotator.h"
+#include "image_transformations.h"
 #include "util.h"
 
 void usage(void)
