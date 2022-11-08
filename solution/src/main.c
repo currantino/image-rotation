@@ -22,10 +22,12 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	struct image *img = malloc(sizeof(struct image));
+	const char * input_filename = argv[1];
 
-	FILE *in = fopen(argv[1], "rb");
-	enum read_status read_status = from_bmp(in, img);
+	struct image img = {0};
+
+	FILE *in = fopen(input_filename, "rb");
+	enum read_status read_status = from_bmp(in, &img);
 	fclose(in);
 
 	switch (read_status) {
@@ -35,20 +37,21 @@ int main(int argc, char **argv)
 	}
 	default: {
 		log_err(image_read_error_msg[read_status]);
-		image_destroy(img);
+		image_destroy(&img);
 		return 1;
 	}
 	}
 
-	struct image *rotated = malloc(sizeof(struct image));
-	*rotated = image_rotate(*img);
-	image_destroy(img);
+	struct image rotated = {0};
+	rotated = image_rotate(img);
+	image_destroy(&img);
 
-	FILE *out = fopen(argv[2], "wb");
-
-	enum write_status write_status = to_bmp(out, rotated);
+	const char * output_filename = argv[2];
+	FILE *out = fopen(output_filename, "wb");
+	enum write_status write_status = to_bmp(out, &rotated);
 	fclose(out);
-	image_destroy(rotated);
+	image_destroy(&rotated);
+
 	switch (write_status) {
 	case WRITE_OK: {
 		log_ok(image_write_error_msg[write_status]);

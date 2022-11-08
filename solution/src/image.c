@@ -19,7 +19,6 @@ struct image image_create(const struct dimensions size)
 void image_destroy(struct image *image)
 {
 	free(image->data);
-	free(image);
 }
 
 size_t image_get_width(const struct image *img) { return img->size.x; }
