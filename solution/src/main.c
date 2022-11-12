@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	const char * input_filename = argv[1];
+	const char *input_filename = argv[1];
 
 	struct image img = {0};
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	rotated = image_rotate(img);
 	image_destroy(&img);
 
-	const char * output_filename = argv[2];
+	const char *output_filename = argv[2];
 	FILE *out = fopen(output_filename, "wb");
 	enum write_status write_status = to_bmp(out, &rotated);
 	fclose(out);
