@@ -36,11 +36,10 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	size_t height = header.biHeight;
 	struct dimensions dim = {.x = width, .y = height};
 	*img = image_create(dim);
-	struct pixel *data = img->data;
 	int64_t padding_in_bytes = image_get_padding_in_bytes(img);
 	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
-		fread(data + (height - row - 1) * width, sizeof(struct pixel),
+		fread(image_get_pixel_by_row_and_col(img, row, 0), sizeof(struct pixel),
 		      width, in);
 		fseek(in, padding_in_bytes, SEEK_CUR);
 	}
@@ -89,12 +88,11 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	write_bmp_header(out, &header);
 	size_t width = image_get_width(img);
 	size_t height = image_get_height(img);
-	struct pixel *data = img->data;
 	int64_t padding_in_bytes = image_get_padding_in_bytes(img);
 
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
-		pixels_written += fwrite(data + (height - row - 1) * width,
+		pixels_written += fwrite(image_get_pixel_by_row_and_col(img, row, 0),
 					 sizeof(struct pixel), width, out);
 		fseek(out, padding_in_bytes, SEEK_CUR);
 	}

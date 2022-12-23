@@ -26,3 +26,11 @@ size_t image_get_size(const struct image *img)
 {
 	return image_get_width(img) * image_get_height(img);
 }
+
+struct pixel *image_get_data(const struct image *img) { return img->data; }
+
+struct pixel *image_get_pixel_by_row_and_col(const struct image *img,
+					     const size_t row, const size_t col)
+{
+	return image_get_data(img) + row * image_get_width(img) + col;
+}
