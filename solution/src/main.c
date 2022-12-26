@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	}
 
 	struct image rotated = {0};
-	rotated = image_rotate(img);
+	rotated = image_color_filter_red(img);
 	image_destroy(&img);
 
 	const char *output_filename = argv[2];

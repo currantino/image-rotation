@@ -19,3 +19,22 @@ struct image image_rotate(const struct image source)
 
 	return rotated;
 }
+
+struct image image_color_filter_red(const struct image source)
+{
+	struct dimensions size = source.size;
+	struct image filtered = image_create(size);
+
+	for (size_t row = 0; row < image_get_height(&filtered); row++) {
+		for (size_t col = 0; col < image_get_width(&filtered); col++) {
+			struct pixel pixel =
+			    *image_get_pixel_by_row_and_col(&source, row, col);
+			pixel.components[0] = 0;
+			pixel.components[1] = 0;
+			*image_get_pixel_by_row_and_col(&filtered, row, col) =
+			    pixel;
+		}
+	}
+
+	return filtered;
+}
