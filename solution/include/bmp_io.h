@@ -2,6 +2,7 @@
 #define BMP_IO_H
 
 #include "bmp_header.h"
+#include "bmp_image.h"
 #include "image.h"
 #include <stdio.h>
 

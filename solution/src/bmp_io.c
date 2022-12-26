@@ -4,12 +4,20 @@
 #define BF_TYPE 19778
 #endif
 
-#ifndef BYTES_PER_PIXEL
-#define BYTES_PER_PIXEL 3
-#endif
-
 #ifndef BITS_PER_BYTE
 #define BITS_PER_BYTE 8
+#endif
+
+#ifndef PIXEL_DENSITY
+#define PIXEL_DENSITY 2834
+#endif
+
+#ifndef BI_SIZE
+#define BI_SIZE 40
+#endif
+
+#ifndef BI_PLANES
+#define BI_PLANES 1
 #endif
 
 static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
@@ -35,38 +43,42 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	size_t width = header.biWidth;
 	size_t height = header.biHeight;
 	struct dimensions dim = {.x = width, .y = height};
+	int64_t bytes_per_pixel = header.biBitCount / BITS_PER_BYTE;
 	*img = image_create(dim);
-	int64_t padding_in_bytes = image_get_padding_in_bytes(img);
+	image_set_bytes_per_pixel(img, bytes_per_pixel);
+	int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
-		fread(image_get_pixel_by_row_and_col(img, row, 0),
+		fread(image_get_start_address_of_row(img, row),
 		      sizeof(struct pixel), width, in);
 		fseek(in, padding_in_bytes, SEEK_CUR);
 	}
 	return READ_OK;
 }
 
-static struct bmp_header image_generate_header(const struct image *img)
+static struct bmp_header bmp_image_generate_header(const struct image *img)
 {
 	struct bmp_header header = {0};
 
 	header.bfType = BF_TYPE;
-	header.bfileSize = ((image_get_width(img) * BYTES_PER_PIXEL +
-			     image_get_padding_in_bytes(img)) *
-			    image_get_height(img)) +
-			   sizeof(struct bmp_header);
+	header.bfileSize =
+	    ((image_get_width(img) * image_get_bytes_per_pixel(img) +
+	      bmp_image_get_padding_in_bytes(img)) *
+	     image_get_height(img)) +
+	    sizeof(struct bmp_header);
 	header.bOffBits = sizeof(struct bmp_header);
-	header.biSize = 40;
+	header.biSize = BI_SIZE;
 	header.biWidth = image_get_width(img);
 	header.biHeight = image_get_height(img);
-	header.biPlanes = 1;
-	header.biBitCount = BYTES_PER_PIXEL * BITS_PER_BYTE;
+	header.biPlanes = BI_PLANES;
+	header.biBitCount = image_get_bytes_per_pixel(img) * BITS_PER_BYTE;
 	header.biCompression = 0;
-	header.biSizeImage = ((image_get_width(img) * BYTES_PER_PIXEL +
-			       image_get_padding_in_bytes(img)) *
-			      image_get_height(img));
-	header.biXPelsPerMeter = 2834;
-	header.biYPelsPerMeter = 2834;
+	header.biSizeImage =
+	    ((image_get_width(img) * image_get_bytes_per_pixel(img) +
+	      bmp_image_get_padding_in_bytes(img)) *
+	     image_get_height(img));
+	header.biXPelsPerMeter = PIXEL_DENSITY;
+	header.biYPelsPerMeter = PIXEL_DENSITY;
 
 	return header;
 }
@@ -83,16 +95,16 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	if (!out) {
 		return WRITE_ERROR;
 	}
-	struct bmp_header header = image_generate_header(img);
+	struct bmp_header header = bmp_image_generate_header(img);
 	write_bmp_header(out, &header);
 	size_t width = image_get_width(img);
 	size_t height = image_get_height(img);
-	int64_t padding_in_bytes = image_get_padding_in_bytes(img);
+	int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
 		pixels_written +=
-		    fwrite(image_get_pixel_by_row_and_col(img, row, 0),
+		    fwrite(image_get_start_address_of_row(img, row),
 			   sizeof(struct pixel), width, out);
 		fseek(out, padding_in_bytes, SEEK_CUR);
 	}

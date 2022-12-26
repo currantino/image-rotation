@@ -1,14 +1,5 @@
 #include "image.h"
 
-#ifndef BYTES_PER_PIXEL
-#define BYTES_PER_PIXEL 3
-#endif
-
-int64_t image_get_padding_in_bytes(const struct image *image)
-{
-	int64_t width_in_bytes = (int64_t)(image->size.x) * BYTES_PER_PIXEL;
-	return width_in_bytes % 4 == 0 ? 0 : 4 - width_in_bytes % 4;
-}
 struct image image_create(const struct dimensions size)
 {
 	struct pixel *data = malloc(sizeof(struct pixel) * size.x * size.y);
@@ -16,7 +7,17 @@ struct image image_create(const struct dimensions size)
 	return created_image;
 }
 
-void image_destroy(struct image *image) { free(image->data); }
+void image_destroy(struct image *img) { free(img->data); }
+
+int64_t image_get_bytes_per_pixel(const struct image *img)
+{
+	return img->bytes_per_pixel;
+}
+
+void image_set_bytes_per_pixel(struct image *img, int64_t bytes_per_pixel)
+{
+	img->bytes_per_pixel = bytes_per_pixel;
+}
 
 size_t image_get_width(const struct image *img) { return img->size.x; }
 
@@ -33,4 +34,10 @@ struct pixel *image_get_pixel_by_row_and_col(const struct image *img,
 					     const size_t row, const size_t col)
 {
 	return image_get_data(img) + row * image_get_width(img) + col;
+}
+
+struct pixel *image_get_start_address_of_row(const struct image *img,
+					     const size_t row)
+{
+	return image_get_data(img) + row * image_get_width(img);
 }
