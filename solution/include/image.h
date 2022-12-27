@@ -9,13 +9,12 @@
 struct image {
 	struct dimensions size;
 	struct pixel *data;
-	int64_t bytes_per_pixel;
+	uint16_t bytes_per_pixel;
 };
 
-struct image image_create(const struct dimensions size);
-int64_t image_get_bytes_per_pixel(const struct image *img);
-void image_set_bytes_per_pixel(struct image *img,
-			       const int64_t bytes_per_pixel);
+struct image image_create(const struct dimensions size,
+			  const uint16_t bytes_per_pixel);
+uint16_t image_get_bytes_per_pixel(const struct image *img);
 int64_t image_get_padding_in_bytes(const struct image *img);
 void image_destroy(struct image *img);
 size_t image_get_width(const struct image *img);

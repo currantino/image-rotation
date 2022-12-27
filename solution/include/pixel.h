@@ -4,7 +4,7 @@
 #include <inttypes.h>
 
 struct pixel {
-	uint64_t components[3];
+	uint8_t components[3];
 };
 
 #endif

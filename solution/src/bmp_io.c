@@ -20,6 +20,10 @@
 #define BI_PLANES 1
 #endif
 
+#ifndef BI_COMPRESSION
+#define BI_COMPRESSION 0
+#endif
+
 static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 {
 	size_t values_read = fread(header, sizeof(struct bmp_header), 1, in);
@@ -43,9 +47,9 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	size_t width = header.biWidth;
 	size_t height = header.biHeight;
 	struct dimensions dim = {.x = width, .y = height};
-	int64_t bytes_per_pixel = header.biBitCount / BITS_PER_BYTE;
-	*img = image_create(dim);
-	image_set_bytes_per_pixel(img, bytes_per_pixel);
+	uint16_t bytes_per_pixel =
+	    (uint16_t)(header.biBitCount / (uint16_t)BITS_PER_BYTE);
+	*img = image_create(dim, bytes_per_pixel);
 	int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
@@ -72,11 +76,11 @@ static struct bmp_header bmp_image_generate_header(const struct image *img)
 	header.biHeight = image_get_height(img);
 	header.biPlanes = BI_PLANES;
 	header.biBitCount = image_get_bytes_per_pixel(img) * BITS_PER_BYTE;
-	header.biCompression = 0;
+	header.biCompression = BI_COMPRESSION;
 	header.biSizeImage =
-	    ((image_get_width(img) * image_get_bytes_per_pixel(img) +
-	      bmp_image_get_padding_in_bytes(img)) *
-	     image_get_height(img));
+	    (image_get_width(img) * image_get_bytes_per_pixel(img) +
+	     bmp_image_get_padding_in_bytes(img)) *
+	    image_get_height(img);
 	header.biXPelsPerMeter = PIXEL_DENSITY;
 	header.biYPelsPerMeter = PIXEL_DENSITY;
 

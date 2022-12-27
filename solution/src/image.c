@@ -1,22 +1,19 @@
 #include "image.h"
 
-struct image image_create(const struct dimensions size)
+struct image image_create(const struct dimensions size,
+			  const uint16_t bytes_per_pixel)
 {
 	struct pixel *data = malloc(sizeof(struct pixel) * size.x * size.y);
-	struct image created_image = {.size = size, .data = data};
+	struct image created_image = {
+	    .size = size, .data = data, .bytes_per_pixel = bytes_per_pixel};
 	return created_image;
 }
 
 void image_destroy(struct image *img) { free(img->data); }
 
-int64_t image_get_bytes_per_pixel(const struct image *img)
+uint16_t image_get_bytes_per_pixel(const struct image *img)
 {
 	return img->bytes_per_pixel;
-}
-
-void image_set_bytes_per_pixel(struct image *img, int64_t bytes_per_pixel)
-{
-	img->bytes_per_pixel = bytes_per_pixel;
 }
 
 size_t image_get_width(const struct image *img) { return img->size.x; }
