@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	default: {
 		log_err(image_read_error_msg[read_status]);
 		image_destroy(&img);
-		return 1;
+		return EXIT_FAILURE;
 	}
 	}
 
@@ -59,8 +59,8 @@ int main(int argc, char **argv)
 	}
 	default: {
 		log_err(image_write_error_msg[write_status]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
