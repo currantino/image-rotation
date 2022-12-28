@@ -2,7 +2,6 @@
 #define BMP_IO_H
 
 #include "bmp_header.h"
-#include "bmp_image.h"
 #include "image.h"
 #include <stdio.h>
 
@@ -13,6 +12,8 @@ enum write_status { WRITE_OK, WRITE_ERROR };
 enum read_status from_bmp(FILE *in, struct image *img);
 
 enum write_status to_bmp(FILE *out, const struct image *img);
+
+int64_t bmp_image_get_padding_in_bytes(const struct image *img);
 
 static const char *const image_read_error_msg[] = {
     [READ_OK] = "File read successfully!",

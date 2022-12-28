@@ -26,7 +26,8 @@
 
 static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 {
-	size_t values_read = fread(header, sizeof(struct bmp_header), 1, in);
+	const size_t values_read =
+	    fread(header, sizeof(struct bmp_header), 1, in);
 	return values_read == 1 ? READ_OK : READ_INVALID_HEADER;
 }
 
@@ -116,4 +117,11 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 		return WRITE_ERROR;
 	}
 	return WRITE_OK;
+}
+
+int64_t bmp_image_get_padding_in_bytes(const struct image *img)
+{
+	int64_t width_in_bytes =
+	    image_get_width(img) * image_get_bytes_per_pixel(img);
+	return 4 - width_in_bytes % 4;
 }
