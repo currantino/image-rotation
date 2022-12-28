@@ -28,7 +28,7 @@ static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 {
 	const size_t values_read =
 	    fread(header, sizeof(struct bmp_header), 1, in);
-	return values_read == 1 ? READ_OK : READ_INVALID_HEADER;
+	return values_read == 1 ? READ_OK : READ_HEADER_ERROR;
 }
 
 enum read_status from_bmp(FILE *in, struct image *img)
@@ -45,13 +45,13 @@ enum read_status from_bmp(FILE *in, struct image *img)
 		return header_read_status;
 	}
 
-	size_t width = header.biWidth;
-	size_t height = header.biHeight;
-	struct dimensions dim = {.x = width, .y = height};
-	uint16_t bytes_per_pixel =
+	const size_t width = header.biWidth;
+	const size_t height = header.biHeight;
+	const struct dimensions dim = {.x = width, .y = height};
+	const uint16_t bytes_per_pixel =
 	    (uint16_t)(header.biBitCount / (uint16_t)BITS_PER_BYTE);
 	*img = image_create(dim, bytes_per_pixel);
-	int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
+	const int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
 		fread(image_get_start_address_of_row(img, row),
@@ -91,8 +91,10 @@ static struct bmp_header bmp_image_generate_header(const struct image *img)
 static enum write_status write_bmp_header(FILE *out,
 					  const struct bmp_header *header)
 {
-	fwrite(header, sizeof(struct bmp_header), 1, out);
-	return WRITE_OK;
+
+	const size_t values_written =
+	    fwrite(header, sizeof(struct bmp_header), 1, out);
+	return values_written == 1 ? WRITE_OK : WRITE_HEADER_ERROR;
 }
 
 enum write_status to_bmp(FILE *out, const struct image *img)
@@ -100,11 +102,15 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	if (!out) {
 		return WRITE_ERROR;
 	}
-	struct bmp_header header = bmp_image_generate_header(img);
-	write_bmp_header(out, &header);
-	size_t width = image_get_width(img);
-	size_t height = image_get_height(img);
-	int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
+	const struct bmp_header header = bmp_image_generate_header(img);
+	const enum write_status write_header_status =
+	    write_bmp_header(out, &header);
+	if (write_header_status != WRITE_OK) {
+		return write_header_status;
+	}
+	const size_t width = image_get_width(img);
+	const size_t height = image_get_height(img);
+	const int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
@@ -119,9 +125,9 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	return WRITE_OK;
 }
 
-int64_t bmp_image_get_padding_in_bytes(const struct image *img)
+size_t bmp_image_get_padding_in_bytes(const struct image *img)
 {
-	int64_t width_in_bytes =
+	const size_t width_in_bytes =
 	    image_get_width(img) * image_get_bytes_per_pixel(img);
 	return 4 - width_in_bytes % 4;
 }

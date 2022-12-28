@@ -1,8 +1,8 @@
 #include "image_transformations.h"
 
-struct image image_rotate(const struct image* source)
+struct image image_rotate(const struct image *source)
 {
-	const struct dimensions size = source -> size;
+	const struct dimensions size = source->size;
 	const struct dimensions size_reversed = dimensions_reverse(&size);
 	struct image result =
 	    image_create(size_reversed, image_get_bytes_per_pixel(source));

@@ -1,7 +1,7 @@
 #ifndef BMP_HEADER_H
 #define BMP_HEADER_H
 
-#include <stdint.h>
+#include <inttypes.h>
 
 struct __attribute__((packed)) bmp_header {
 	uint16_t bfType;

@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "bmp_io.h"
@@ -19,7 +18,7 @@ int main(int argc, char **argv)
 			perror("Not enough arguments \n");
 		if (argc > 3)
 			perror("Too many arguments \n");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	const char *input_filename = argv[1];
@@ -27,7 +26,7 @@ int main(int argc, char **argv)
 	struct image img = {0};
 
 	FILE *in = fopen(input_filename, "rb");
-	enum read_status read_status = from_bmp(in, &img);
+	const enum read_status read_status = from_bmp(in, &img);
 	fclose(in);
 
 	switch (read_status) {
