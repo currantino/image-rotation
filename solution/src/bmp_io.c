@@ -51,7 +51,7 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	const uint16_t bytes_per_pixel =
 	    (uint16_t)(header.biBitCount / (uint16_t)BITS_PER_BYTE);
 	*img = image_create(dim, bytes_per_pixel);
-	const size_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
+	const int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
 		fread(image_get_start_address_of_row(img, row),
@@ -110,7 +110,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	}
 	const size_t width = image_get_width(img);
 	const size_t height = image_get_height(img);
-	const size_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
+	const int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 
 	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
@@ -125,9 +125,9 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	return WRITE_OK;
 }
 
-size_t bmp_image_get_padding_in_bytes(const struct image *img)
+int64_t bmp_image_get_padding_in_bytes(const struct image *img)
 {
-	const size_t width_in_bytes =
+	const int64_t width_in_bytes =
 	    image_get_width(img) * image_get_bytes_per_pixel(img);
 	return 4 - width_in_bytes % 4;
 }
