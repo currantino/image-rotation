@@ -128,6 +128,6 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 int64_t bmp_image_get_padding_in_bytes(const struct image *img)
 {
 	const int64_t width_in_bytes =
-	    image_get_width(img) * image_get_bytes_per_pixel(img);
+	    (int64_t) image_get_width(img) * (int64_t)image_get_bytes_per_pixel(img);
 	return 4 - width_in_bytes % 4;
 }
