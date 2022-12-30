@@ -56,7 +56,7 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	for (size_t row = 0; row < height; row++) {
 		fread(image_get_start_address_of_row(img, row),
 		      sizeof(struct pixel), width, in);
-		fseek(in, padding_in_bytes, SEEK_CUR);
+		fseek(in, (long)padding_in_bytes, SEEK_CUR);
 	}
 	return READ_OK;
 }
@@ -117,7 +117,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 		pixels_written +=
 		    fwrite(image_get_start_address_of_row(img, row),
 			   sizeof(struct pixel), width, out);
-		fseek(out, padding_in_bytes, SEEK_CUR);
+		fseek(out, (long)padding_in_bytes, SEEK_CUR);
 	}
 	if (pixels_written != width * height) {
 		return WRITE_ERROR;
