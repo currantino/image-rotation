@@ -3,6 +3,8 @@
 
 enum color { RED, GREEN, DEFAULT };
 
+void log_msg(const char *const message);
+
 void log_err(const char *const message);
 
 void log_ok(const char *const message);
