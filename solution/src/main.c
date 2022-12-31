@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include "io.h"
 #include "bmp_io.h"
 #include "image_transformations.h"
+#include "io.h"
 #include "util.h"
 
 void usage(void)
@@ -73,6 +73,8 @@ int main(int argc, char **argv)
 	log_msg(get_stream_close_msg(output_stream_close_status));
 	if (output_stream_close_status != CLOSE_SUCCESS) {
 		image_destroy(&rotated);
+		return EXIT_FAILURE;
 	}
+	image_destroy(&rotated);
 	return EXIT_SUCCESS;
 }

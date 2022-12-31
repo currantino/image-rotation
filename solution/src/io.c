@@ -20,9 +20,8 @@ const char *get_stream_close_msg(enum stream_close_status stream_close_status)
 static const char *const stream_open_modes[] = {
     [WRITE_BINARY] = "wb", [READ_BINARY] = "rb"};
 
-enum stream_open_status stream_open(const char *path,
-					  enum stream_open_mode mode,
-					  FILE **stream_ptr)
+enum stream_open_status
+stream_open(const char *path, enum stream_open_mode mode, FILE **stream_ptr)
 {
 	const char *mode_string = stream_open_modes[mode];
 	*stream_ptr = fopen(path, mode_string);
