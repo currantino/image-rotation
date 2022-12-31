@@ -1,4 +1,4 @@
-#include "image_transformations.h"
+#include "image_transformer.h"
 
 struct image image_rotate(const struct image *source)
 {

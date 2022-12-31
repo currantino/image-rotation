@@ -34,6 +34,24 @@ static const char *const write_status_msg[] = {
     [WRITE_HEADER_ERROR] = "File header could not be read!",
     [WRITE_ERROR] = "File could not be written!"};
 
+struct __attribute__((packed)) bmp_header {
+	uint16_t bfType;
+	uint32_t bfileSize;
+	uint32_t bfReserved;
+	uint32_t bOffBits;
+	uint32_t biSize;
+	uint32_t biWidth;
+	uint32_t biHeight;
+	uint16_t biPlanes;
+	uint16_t biBitCount;
+	uint32_t biCompression;
+	uint32_t biSizeImage;
+	uint32_t biXPelsPerMeter;
+	uint32_t biYPelsPerMeter;
+	uint32_t biClrUsed;
+	uint32_t biClrImportant;
+};
+
 const char *get_read_status_msg(enum read_status read_status)
 {
 	return read_status_msg[read_status];
@@ -139,7 +157,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 			   sizeof(struct pixel), width, out);
 		fseek(out, (long)padding_in_bytes, SEEK_CUR);
 	}
-	if (pixels_written != width * height) {
+	if (pixels_written != image_get_size(img)) {
 		return WRITE_ERROR;
 	}
 	return WRITE_OK;

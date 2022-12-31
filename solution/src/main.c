@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "bmp_io.h"
-#include "image_transformations.h"
+#include "image_transformer.h"
 #include "io.h"
 #include "util.h"
 
