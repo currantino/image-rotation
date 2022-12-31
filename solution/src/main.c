@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "../include/io.h"
 #include "bmp_io.h"
 #include "image_transformations.h"
 #include "util.h"
@@ -25,17 +26,30 @@ int main(int argc, char **argv)
 
 	struct image img = {0};
 
-	FILE *in = fopen(input_filename, "rb");
-	const enum read_status read_status = from_bmp(in, &img);
-	fclose(in);
-
-	switch (read_status) {
-	case READ_OK: {
-		log_ok(image_read_error_msg[read_status]);
+	FILE *in = NULL;
+	enum file_open_status file_open_status =
+	    image_open_stream(input_filename, READ_BINARY, in);
+	switch (file_open_status) {
+	case OPEN_SUCCESS: {
+		log_ok(get_file_open_msg(file_open_status));
 		break;
 	}
 	default: {
-		log_err(image_read_error_msg[read_status]);
+		log_err(get_file_open_msg(file_open_status));
+		return EXIT_FAILURE;
+	}
+	}
+	const enum read_status read_status = from_bmp(in, &img);
+	// enum file_close_status file_close_status =
+	image_close_stream(in);
+
+	switch (read_status) {
+	case READ_OK: {
+		log_ok(get_read_status_msg(read_status));
+		break;
+	}
+	default: {
+		log_err(get_read_status_msg(read_status));
 		image_destroy(&img);
 		return EXIT_FAILURE;
 	}
@@ -53,11 +67,11 @@ int main(int argc, char **argv)
 
 	switch (write_status) {
 	case WRITE_OK: {
-		log_ok(image_write_error_msg[write_status]);
+		log_ok(get_write_status_msg(write_status));
 		break;
 	}
 	default: {
-		log_err(image_write_error_msg[write_status]);
+		log_err(get_write_status_msg(write_status));
 		return EXIT_FAILURE;
 	}
 	}

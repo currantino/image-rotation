@@ -3,6 +3,7 @@
 
 #include "bmp_header.h"
 #include "image.h"
+#include "io.h"
 #include <stdio.h>
 
 enum read_status { READ_OK, READ_HEADER_ERROR, READ_ERROR };
@@ -15,14 +16,8 @@ enum write_status to_bmp(FILE *out, const struct image *img);
 
 int64_t bmp_image_get_padding_in_bytes(const struct image *img);
 
-static const char *const image_read_error_msg[] = {
-    [READ_OK] = "File read successfully!",
-    [READ_HEADER_ERROR] = "File header could not be read!",
-    [READ_ERROR] = "File could not be read!"};
+const char *get_read_status_msg(enum read_status read_status);
 
-static const char *const image_write_error_msg[] = {
-    [WRITE_OK] = "File written successfully!",
-    [WRITE_HEADER_ERROR] = "File header could not be read!",
-    [WRITE_ERROR] = "File could not be written!"};
+const char *get_write_status_msg(enum write_status write_status);
 
 #endif

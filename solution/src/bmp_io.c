@@ -24,6 +24,26 @@
 #define BI_COMPRESSION 0
 #endif
 
+static const char *const read_status_msg[] = {
+    [READ_OK] = "File read successfully!",
+    [READ_HEADER_ERROR] = "File header could not be read!",
+    [READ_ERROR] = "File could not be read!"};
+
+static const char *const write_status_msg[] = {
+    [WRITE_OK] = "File written successfully!",
+    [WRITE_HEADER_ERROR] = "File header could not be read!",
+    [WRITE_ERROR] = "File could not be written!"};
+
+const char *get_read_status_msg(enum read_status read_status)
+{
+	return read_status_msg[read_status];
+}
+
+const char *get_write_status_msg(enum write_status write_status)
+{
+	return write_status_msg[write_status];
+}
+
 static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 {
 	const size_t values_read =
@@ -127,7 +147,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 
 int64_t bmp_image_get_padding_in_bytes(const struct image *img)
 {
-	const int64_t width_in_bytes =
-	    (int64_t) image_get_width(img) * (int64_t)image_get_bytes_per_pixel(img);
+	const int64_t width_in_bytes = (int64_t)image_get_width(img) *
+				       (int64_t)image_get_bytes_per_pixel(img);
 	return 4 - width_in_bytes % 4;
 }
