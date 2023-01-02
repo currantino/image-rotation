@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <errno.h>
+
 enum color { RED, GREEN, DEFAULT };
 
 void log_msg(const char *const message);

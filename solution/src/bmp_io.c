@@ -24,16 +24,6 @@
 #define BI_COMPRESSION 0
 #endif
 
-static const char *const read_status_msg[] = {
-    [READ_OK] = "File read successfully!",
-    [READ_HEADER_ERROR] = "File header could not be read!",
-    [READ_ERROR] = "File could not be read!"};
-
-static const char *const write_status_msg[] = {
-    [WRITE_OK] = "File written successfully!",
-    [WRITE_HEADER_ERROR] = "File header could not be read!",
-    [WRITE_ERROR] = "File could not be written!"};
-
 struct __attribute__((packed)) bmp_header {
 	uint16_t bfType;
 	uint32_t bfileSize;
@@ -51,16 +41,6 @@ struct __attribute__((packed)) bmp_header {
 	uint32_t biClrUsed;
 	uint32_t biClrImportant;
 };
-
-const char *get_read_status_msg(enum read_status read_status)
-{
-	return read_status_msg[read_status];
-}
-
-const char *get_write_status_msg(enum write_status write_status)
-{
-	return write_status_msg[write_status];
-}
 
 static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
 {
@@ -88,14 +68,24 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	const struct dimensions dim = {.x = width, .y = height};
 	const uint16_t bytes_per_pixel =
 	    (uint16_t)(header.biBitCount / (uint16_t)BITS_PER_BYTE);
-	*img = image_create(dim, bytes_per_pixel);
-	const int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
+	struct image maybe_img = {0};
+	maybe_img = image_create(dim, bytes_per_pixel);
+	const int64_t padding_in_bytes =
+	    bmp_image_get_padding_in_bytes(&maybe_img);
 	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
-		fread(image_get_start_address_of_row(img, row),
-		      sizeof(struct pixel), width, in);
-		fseek(in, (long)padding_in_bytes, SEEK_CUR);
+		const enum read_status row_read_status =
+		    image_read_row(&maybe_img, row, in);
+		if (row_read_status != READ_OK) {
+			image_destroy(img);
+			return row_read_status;
+		}
+		if (!skip_padding(in, (long)padding_in_bytes)) {
+			image_destroy(img);
+			return READ_ERROR;
+		}
 	}
+	*img = maybe_img;
 	return READ_OK;
 }
 
@@ -129,7 +119,6 @@ static struct bmp_header bmp_image_generate_header(const struct image *img)
 static enum write_status write_bmp_header(FILE *out,
 					  const struct bmp_header *header)
 {
-
 	const size_t values_written =
 	    fwrite(header, sizeof(struct bmp_header), 1, out);
 	return values_written == 1 ? WRITE_OK : WRITE_HEADER_ERROR;
@@ -146,19 +135,20 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	if (write_header_status != WRITE_OK) {
 		return write_header_status;
 	}
-	const size_t width = image_get_width(img);
 	const size_t height = image_get_height(img);
 	const int64_t padding_in_bytes = bmp_image_get_padding_in_bytes(img);
 
-	size_t pixels_written = 0;
 	for (size_t row = 0; row < height; row++) {
-		pixels_written +=
-		    fwrite(image_get_start_address_of_row(img, row),
-			   sizeof(struct pixel), width, out);
-		fseek(out, (long)padding_in_bytes, SEEK_CUR);
-	}
-	if (pixels_written != image_get_size(img)) {
-		return WRITE_ERROR;
+		const enum write_status row_write_status =
+		    image_write_row(img, row, out);
+		if (row_write_status != WRITE_OK) {
+			return row_write_status;
+		}
+		const int is_seek_not_successfull =
+		    fseek(out, (long)padding_in_bytes, SEEK_CUR);
+		if (is_seek_not_successfull) {
+			return WRITE_ERROR;
+		}
 	}
 	return WRITE_OK;
 }

@@ -14,4 +14,11 @@ void log_err(const char *const message)
 		color_codes[DEFAULT], message);
 }
 
-void log_msg(const char *const message) { fprintf(stderr, "%s\n", message); }
+void log_msg(const char *const message)
+{
+	if (errno == 0) {
+		fprintf(stderr, "%s\n", message);
+	} else {
+		perror(message);
+	}
+}

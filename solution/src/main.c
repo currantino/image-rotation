@@ -66,6 +66,8 @@ int main(int argc, char **argv)
 	enum write_status write_status = to_bmp(out, &rotated);
 	log_msg(get_write_status_msg(write_status));
 	if (write_status != WRITE_OK) {
+		image_destroy(&rotated);
+		stream_close(out);
 		return EXIT_FAILURE;
 	}
 
