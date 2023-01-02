@@ -24,6 +24,10 @@
 #define BI_COMPRESSION 0
 #endif
 
+#ifndef BI_BIT_COUNT
+#define BI_BIT_COUNT 24
+#endif
+
 struct __attribute__((packed)) bmp_header {
 	uint16_t bfType;
 	uint32_t bfileSize;
@@ -42,11 +46,51 @@ struct __attribute__((packed)) bmp_header {
 	uint32_t biClrImportant;
 };
 
-static enum read_status bmp_header_read(FILE *in, struct bmp_header *header)
+enum bmp_header_status {
+	BMP_HEADER_OK = 0,
+	INVALID_SIGNATURE,
+	INVALID_BI_PLANES,
+	UNSUPPORTED_BI_BIT_COUNT,
+	UNSUPPORTED_BI_COMPRESSION,
+	INVALID_DIMENSIONS,
+	BMP_HEADER_ERROR
+};
+
+static const char *const bmp_header_status_msg[] = {
+    [BMP_HEADER_OK] = "BMP image header is valid",
+    [INVALID_SIGNATURE] = "BMP image header has invalid signature",
+    [INVALID_BI_PLANES] = "BMP image has invalid number of planes",
+    [UNSUPPORTED_BI_BIT_COUNT] = "BMP image has unsupported bit count",
+    [UNSUPPORTED_BI_COMPRESSION] = "BMP image has unsupported compression",
+    [INVALID_DIMENSIONS] = "BMP image has non-positive dimensions",
+    [BMP_HEADER_ERROR] = "Error occured while processing BMP image header"};
+
+static enum bmp_header_status
+bmp_header_is_valid(const struct bmp_header *header)
+{
+	if (header->bfType != BF_TYPE) {
+		return INVALID_SIGNATURE;
+	} else if (header->biPlanes != BI_PLANES) {
+		return INVALID_BI_PLANES;
+	} else if (header->biBitCount != BI_BIT_COUNT) {
+		return UNSUPPORTED_BI_BIT_COUNT;
+	} else if (header->biCompression != BI_COMPRESSION) {
+		return UNSUPPORTED_BI_COMPRESSION;
+	} else if (header->biWidth <= 0 || header->biHeight <= 0) {
+		return INVALID_DIMENSIONS;
+	}
+	return BMP_HEADER_OK;
+}
+
+static enum bmp_header_status bmp_header_read(FILE *in,
+					      struct bmp_header *header)
 {
 	const size_t values_read =
 	    fread(header, sizeof(struct bmp_header), 1, in);
-	return values_read == 1 ? READ_OK : READ_HEADER_ERROR;
+	if (values_read == 1) {
+		return bmp_header_is_valid(header);
+	}
+	return BMP_HEADER_ERROR;
 }
 
 enum read_status from_bmp(FILE *in, struct image *img)
@@ -57,10 +101,13 @@ enum read_status from_bmp(FILE *in, struct image *img)
 
 	struct bmp_header header = {0};
 
-	enum read_status header_read_status = bmp_header_read(in, &header);
-
-	if (header_read_status != READ_OK) {
-		return header_read_status;
+	enum bmp_header_status header_read_status =
+	    bmp_header_read(in, &header);
+	if (header_read_status != BMP_HEADER_OK) {
+		log_err(bmp_header_status_msg[header_read_status]);
+		return READ_HEADER_ERROR;
+	} else {
+		log_ok(bmp_header_status_msg[header_read_status]);
 	}
 
 	const size_t width = header.biWidth;

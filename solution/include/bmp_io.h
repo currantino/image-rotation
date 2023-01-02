@@ -3,6 +3,7 @@
 
 #include "image.h"
 #include "image_io.h"
+#include "util.h"
 #include <stdio.h>
 
 enum read_status from_bmp(FILE *in, struct image *img);

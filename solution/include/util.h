@@ -2,6 +2,8 @@
 #define UTIL_H
 
 #include <errno.h>
+#include <stdio.h>
+#include <string.h>
 
 enum color { RED, GREEN, DEFAULT };
 

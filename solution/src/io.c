@@ -1,10 +1,10 @@
 #include "io.h"
 
-static const char *stream_open_msg[] = {
+static const char *const stream_open_msg[] = {
     [OPEN_SUCCESS] = "File was successfully opened",
     [OPEN_FAILURE] = "File could not be opened"};
 
-static const char *stream_close_msg[] = {
+static const char *const stream_close_msg[] = {
     [CLOSE_SUCCESS] = "File was successfully closed",
     [CLOSE_FAILURE] = "File could not be closed"};
 
@@ -18,6 +18,9 @@ static const char *const write_status_msg[] = {
     [WRITE_OK] = "File written successfully",
     [WRITE_HEADER_ERROR] = "File header could not be read",
     [WRITE_ERROR] = "File could not be written"};
+
+static const char *const stream_open_modes[] = {
+    [WRITE_BINARY] = "wb", [READ_BINARY] = "rb"};
 
 const char *get_stream_open_msg(enum stream_open_status stream_open_status)
 {
@@ -38,9 +41,6 @@ const char *get_write_status_msg(enum write_status write_status)
 {
 	return write_status_msg[write_status];
 }
-
-static const char *const stream_open_modes[] = {
-    [WRITE_BINARY] = "wb", [READ_BINARY] = "rb"};
 
 enum stream_open_status
 stream_open(const char *path, enum stream_open_mode mode, FILE **stream_ptr)

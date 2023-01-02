@@ -23,28 +23,25 @@ int main(int argc, char **argv)
 	}
 
 	const char *input_path = argv[1];
-
-	struct image img = {0};
-
 	FILE *in = NULL;
 	enum stream_open_status input_stream_open_status =
 	    stream_open(input_path, READ_BINARY, &in);
 	log_msg(get_stream_open_msg(input_stream_open_status));
-
 	if (input_stream_open_status != OPEN_SUCCESS) {
 		return EXIT_FAILURE;
 	}
-	const enum read_status read_status = from_bmp(in, &img);
 
-	log_msg(get_read_status_msg(read_status));
+	struct image img = {0};
+	const enum read_status read_status = from_bmp(in, &img);
 	if (read_status != READ_OK) {
 		image_destroy(&img);
 		return EXIT_FAILURE;
+	} else {
+		log_ok(get_read_status_msg(read_status));
 	}
 
 	enum stream_close_status input_stream_close_status = stream_close(in);
 	log_msg(get_stream_close_msg(input_stream_close_status));
-
 	if (input_stream_close_status != CLOSE_SUCCESS) {
 		return EXIT_FAILURE;
 	}
@@ -77,6 +74,7 @@ int main(int argc, char **argv)
 		image_destroy(&rotated);
 		return EXIT_FAILURE;
 	}
+
 	image_destroy(&rotated);
 	return EXIT_SUCCESS;
 }
