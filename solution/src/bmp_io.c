@@ -115,20 +115,22 @@ enum read_status from_bmp(FILE *in, struct image *img)
 	const struct dimensions dim = {.x = width, .y = height};
 	const uint16_t bytes_per_pixel =
 	    (uint16_t)(header.biBitCount / (uint16_t)BITS_PER_BYTE);
+	if (fseek(in, header.bOffBits, SEEK_SET)) {
+		return READ_ERROR;
+	}
 	struct image maybe_img = {0};
 	maybe_img = image_create(dim, bytes_per_pixel);
 	const int64_t padding_in_bytes =
 	    bmp_image_get_padding_in_bytes(&maybe_img);
-	fseek(in, header.bOffBits, SEEK_SET);
 	for (size_t row = 0; row < height; row++) {
 		const enum read_status row_read_status =
 		    image_read_row(&maybe_img, row, in);
 		if (row_read_status != READ_OK) {
-			image_destroy(img);
+			image_destroy(&maybe_img);
 			return row_read_status;
 		}
 		if (!skip_padding(in, (long)padding_in_bytes)) {
-			image_destroy(img);
+			image_destroy(&maybe_img);
 			return READ_ERROR;
 		}
 	}
@@ -191,9 +193,7 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 		if (row_write_status != WRITE_OK) {
 			return row_write_status;
 		}
-		const int is_seek_not_successfull =
-		    fseek(out, (long)padding_in_bytes, SEEK_CUR);
-		if (is_seek_not_successfull) {
+		if (!skip_padding(out, (long)padding_in_bytes)) {
 			return WRITE_ERROR;
 		}
 	}
