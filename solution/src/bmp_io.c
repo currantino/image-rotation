@@ -65,8 +65,7 @@ static const char *const bmp_header_status_msg[] = {
     [INVALID_DIMENSIONS] = "BMP image has non-positive dimensions",
     [BMP_HEADER_ERROR] = "Error occured while processing BMP image header"};
 
-static enum bmp_header_status
-bmp_header_is_valid(const struct bmp_header *header)
+static enum bmp_header_status bmp_header_check(const struct bmp_header *header)
 {
 	if (header->bfType != BF_TYPE) {
 		return INVALID_SIGNATURE;
@@ -88,9 +87,16 @@ static enum bmp_header_status bmp_header_read(FILE *in,
 	const size_t values_read =
 	    fread(header, sizeof(struct bmp_header), 1, in);
 	if (values_read == 1) {
-		return bmp_header_is_valid(header);
+		return bmp_header_check(header);
 	}
 	return BMP_HEADER_ERROR;
+}
+
+static int64_t bmp_image_get_padding_in_bytes(const struct image *img)
+{
+	const int64_t width_in_bytes = (int64_t)image_get_width(img) *
+				       (int64_t)image_get_bytes_per_pixel(img);
+	return 4 - width_in_bytes % 4;
 }
 
 enum read_status from_bmp(FILE *in, struct image *img)
@@ -198,11 +204,4 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 		}
 	}
 	return WRITE_OK;
-}
-
-int64_t bmp_image_get_padding_in_bytes(const struct image *img)
-{
-	const int64_t width_in_bytes = (int64_t)image_get_width(img) *
-				       (int64_t)image_get_bytes_per_pixel(img);
-	return 4 - width_in_bytes % 4;
 }
