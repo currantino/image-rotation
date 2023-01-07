@@ -56,9 +56,9 @@ stream_open(const char *path, enum stream_open_mode mode, FILE **stream_ptr)
 
 enum stream_close_status stream_close(FILE *stream)
 {
-	if (fclose(stream) == 0) {
-		return CLOSE_SUCCESS;
-	} else {
+	if (fclose(stream)) {
 		return CLOSE_FAILURE;
+	} else {
+		return CLOSE_SUCCESS;
 	}
 }

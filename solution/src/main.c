@@ -23,58 +23,21 @@ int main(int argc, char **argv)
 	}
 
 	const char *input_path = argv[1];
-	FILE *in = NULL;
-	enum stream_open_status input_stream_open_status =
-	    stream_open(input_path, READ_BINARY, &in);
-	log_msg(get_stream_open_msg(input_stream_open_status));
-	if (input_stream_open_status != OPEN_SUCCESS) {
-		return EXIT_FAILURE;
-	}
-
 	struct image img = {0};
-	const enum read_status read_status = from_bmp(in, &img);
-	if (read_status != READ_OK) {
-		image_destroy(&img);
-		return EXIT_FAILURE;
-	} else {
-		log_ok(get_read_status_msg(read_status));
-	}
-
-	enum stream_close_status input_stream_close_status = stream_close(in);
-	log_msg(get_stream_close_msg(input_stream_close_status));
-	if (input_stream_close_status != CLOSE_SUCCESS) {
+	if (bmp_image_read(input_path, &img) != READ_OK) {
 		return EXIT_FAILURE;
 	}
 
-	struct image rotated = {0};
-	rotated = image_rotate(&img);
+	struct image image_transformed = {0};
+	image_transformed = image_rotate(&img);
 	image_destroy(&img);
 
 	const char *output_path = argv[2];
-	FILE *out = NULL;
-	enum stream_open_status output_stream_open_status =
-	    stream_open(output_path, WRITE_BINARY, &out);
-	log_msg(get_stream_open_msg(output_stream_open_status));
-	if (output_stream_open_status != OPEN_SUCCESS) {
-		image_destroy(&rotated);
+	if (bmp_image_write(output_path, &image_transformed) != WRITE_OK) {
+		image_destroy(&image_transformed);
 		return EXIT_FAILURE;
 	}
 
-	enum write_status write_status = to_bmp(out, &rotated);
-	log_msg(get_write_status_msg(write_status));
-	if (write_status != WRITE_OK) {
-		image_destroy(&rotated);
-		stream_close(out);
-		return EXIT_FAILURE;
-	}
-
-	enum stream_close_status output_stream_close_status = stream_close(out);
-	log_msg(get_stream_close_msg(output_stream_close_status));
-	if (output_stream_close_status != CLOSE_SUCCESS) {
-		image_destroy(&rotated);
-		return EXIT_FAILURE;
-	}
-
-	image_destroy(&rotated);
+	image_destroy(&image_transformed);
 	return EXIT_SUCCESS;
 }

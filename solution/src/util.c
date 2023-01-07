@@ -8,7 +8,7 @@ void log_ok(const char *const message)
 
 void log_err(const char *const message)
 {
-	if (errno != 0) {
+	if (errno) {
 		fprintf(stderr, "%s%s%s%s: %s\n", color_codes[RED],
 			"[ ERROR ]\t", color_codes[DEFAULT], message,
 			strerror(errno));

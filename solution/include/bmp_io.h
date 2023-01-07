@@ -10,6 +10,8 @@ enum read_status from_bmp(FILE *in, struct image *img);
 
 enum write_status to_bmp(FILE *out, const struct image *img);
 
-// int64_t bmp_image_get_padding_in_bytes(const struct image *img);
+enum read_status bmp_image_read(const char *path, struct image *img);
+
+enum write_status bmp_image_write(const char *path, const struct image *img);
 
 #endif

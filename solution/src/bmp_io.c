@@ -205,3 +205,57 @@ enum write_status to_bmp(FILE *out, const struct image *img)
 	}
 	return WRITE_OK;
 }
+
+enum read_status bmp_image_read(const char *path, struct image *img)
+{
+	FILE *in = NULL;
+	enum stream_open_status input_stream_open_status =
+	    stream_open(path, READ_BINARY, &in);
+	log_msg(get_stream_open_msg(input_stream_open_status));
+	if (input_stream_open_status != OPEN_SUCCESS) {
+		return READ_ERROR;
+	}
+
+	const enum read_status read_status = from_bmp(in, img);
+	if (read_status != READ_OK) {
+		log_err(get_read_status_msg(read_status));
+		image_destroy(img);
+		return READ_ERROR;
+	} else {
+		log_ok(get_read_status_msg(read_status));
+	}
+
+	enum stream_close_status input_stream_close_status = stream_close(in);
+	log_msg(get_stream_close_msg(input_stream_close_status));
+	if (input_stream_close_status != CLOSE_SUCCESS) {
+		return READ_ERROR;
+	}
+
+	return READ_OK;
+}
+
+enum write_status bmp_image_write(const char *path, const struct image *img)
+{
+	FILE *out = NULL;
+	enum stream_open_status output_stream_open_status =
+	    stream_open(path, WRITE_BINARY, &out);
+	log_msg(get_stream_open_msg(output_stream_open_status));
+	if (output_stream_open_status != OPEN_SUCCESS) {
+		return WRITE_ERROR;
+	}
+
+	enum write_status write_status = to_bmp(out, img);
+	log_msg(get_write_status_msg(write_status));
+	if (write_status != WRITE_OK) {
+		stream_close(out);
+		return WRITE_ERROR;
+	}
+
+	enum stream_close_status output_stream_close_status = stream_close(out);
+	log_msg(get_stream_close_msg(output_stream_close_status));
+	if (output_stream_close_status != CLOSE_SUCCESS) {
+		return WRITE_ERROR;
+	}
+
+	return WRITE_OK;
+}
