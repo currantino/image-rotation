@@ -15,10 +15,14 @@ void usage(void)
 int main(int argc, char **argv)
 {
 	if (argc != 3) {
-		if (argc < 3)
-			perror("Not enough arguments \n");
-		if (argc > 3)
-			perror("Too many arguments \n");
+		if (argc < 3) {
+			err("Not enough arguments");
+			usage();
+		}
+		if (argc > 3) {
+			err("Too many arguments");
+			usage();
+		}
 		return EXIT_FAILURE;
 	}
 

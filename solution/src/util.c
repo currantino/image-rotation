@@ -22,3 +22,5 @@ void log_msg(const char *const message)
 {
 	errno == 0 ? log_ok(message) : log_err(message);
 }
+
+void err(const char *const message) { fprintf(stderr, "%s\n", message); }
